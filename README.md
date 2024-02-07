@@ -1,5 +1,7 @@
 Traditional Korean Wood Game is now released and visible on https://play.unity.com/mg/other/webgl-builds-382488. In the latest update, the last bug has been fixed, and a new rule has been added. Now, you can hold Yut results when it's 4 or 5, and those results can be combined as you wish.
 
+7 Feb 2024 Major update to integrate the use of a rule that was communicated to me only at the end of January - the rule of making all throws when a 4 or a 5 is rolled and storing them to choose the most strategic combination later. Indeed, beyond creating a dropdown list and subsequent choice buttons, the computer was not able to click on them and wait for updates. Now, with the addition of a few variables and timers, it can click the last created button when necessary. As for the strategy, I have my ideas, but it will require more development. Also, a minor display bug in the background has been fixed.
+
 Initially, I created the computer player without complete knowledge of the game. The human part is functioning well, but for the computer, I set the necessary global variables and left it at that. The issue with triggers crossing at 15 has been resolved. Note that the computers use the same arrays, so there might be some bugs when it's a computer vs. computer scenario."
 
 Correct the minor bug report. The chosen fix will have to be changed (applied) at 01-02-2024, 7 PM.
