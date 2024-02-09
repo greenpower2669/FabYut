@@ -7,6 +7,8 @@ public class ImageResizer : MonoBehaviour
     public bool isResizing = false;
     public Vector2 initialPosition;
     public float scaleFactor = 5f; // Ajoutez cette ligne pour le facteur de zoom
+    GameObject objetAChercher;
+    Globals globalsScript;
 
     void Start()
     {
@@ -14,6 +16,9 @@ public class ImageResizer : MonoBehaviour
         initialSize = GetComponent<RectTransform>().sizeDelta;
         // Sauvegarder la position initiale de l'image
         initialPosition = GetComponent<RectTransform>().anchoredPosition;
+
+        objetAChercher = GameObject.FindWithTag("Globals");
+        globalsScript = objetAChercher.GetComponent<Globals>();
     }
 
     void Update()
@@ -122,8 +127,14 @@ public class ImageResizer : MonoBehaviour
 
     void ResizeImage()
     {
+        if (globalsScript.CountLeft==0)
+        {
+            globalsScript.MinScreenSend = true;
+        }
+        
         Vector2 newSize = initialSize * scaleFactor;
         GetComponent<RectTransform>().sizeDelta = newSize;
+
     }
 
     void ResetImageSize()

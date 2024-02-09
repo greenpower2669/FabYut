@@ -8,7 +8,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Linq;
 
-
+[System.Serializable]
 public class PushUpData
 {
     public int p; // 1 ou 2
@@ -54,8 +54,11 @@ public class Globals : MonoBehaviour
     public int CountLeft = 0;
     public int CountLeftDL = 0;
     public bool choosen = false;
+    public bool RobotStop = false;
     public bool Saved = false;
     public int add = 0;
+    public int addl = 0;
+    public bool yutlistRobot = false;
     public bool yutlist = false;
     public int computingPoints=0;
     public bool toUntrig = false;
@@ -127,6 +130,8 @@ public class Globals : MonoBehaviour
     public int WinerId = 0;
     public bool RobotChoosen = false;
     public int RobotTimer = 0;
+    public int RobotTimer2 = 0;
+    public int RobotTimer3 = 0;
     public int RobotId = 0;
     public int RobotX = 0;
     public int RobotY = 0;
@@ -154,6 +159,9 @@ public class Globals : MonoBehaviour
     List<string> teamNam2 = new List<string>();
     public TextMeshProUGUI[] textesBouton = new TextMeshProUGUI[40];
     public int[] computingPointsList = new int[40];
+    public int[] inttextesBouton = new int[40];
+    public bool MinScreenSend = false;
+
 
     // Start is called before the first frame update
     void setPlateau()
@@ -1490,26 +1498,66 @@ listePushUpsPtrig.Add(new PushUpData(robot.p, robot.y, robot.x));
         sliderValueagr = AGRSTRAT.value;
         iaAgr[1] = 1+Mathf.RoundToInt(sliderValueagr*9);
         iaStrat[1]  = 10- iaAgr[1]+1;
-
         sliderValueLvl2 = LVLIA2.value;
         iaLvl[2] = 1 + Mathf.RoundToInt(sliderValueLvl2 * 9);
         sliderValueagr2 = AGRSTRAT2.value;
         iaAgr[2] = 1 + Mathf.RoundToInt(sliderValueagr2 * 9);
         iaStrat[2] = 10 - iaAgr[2]+1;
 
-        if (Jts == "Computer") { monToggle.isOn=true;  RobotTimer++; if (RobotTimer >= 50) { haveToComputing = true; } }
-        if (RobotChoosen) { RobotTimer = 0; RobotDoing(); }
-        if (haveToComputing && Indexcam>2 && !iaProcessing && Jts == "Computer" && !RobotChoosen && CountLeft != -9 && CountLeft != 0 && Indexcam != 1)
+        if (CountLeft == -50 && addl>0 &&  Jts == "Computer" ) {
+            if (RobotTimer2 == 0 && !yutlistRobot)
+            {
+                yutlistRobot = true;
+                RobotTimer2++;
+                RobotStop = false;
+
+                OnBoutonClicYut(inttextesBouton[addl-1]);
+
+                textesBouton[addl].text = ""; YutVide();
+
+            }
+            else
+            {
+                RobotTimer2 ++;
+                if (RobotTimer2 > 3) { RobotTimer2 = 0; }
+            }
+           
+            
+            
+        }
+
+        if (RobotTimer3 == 0)
         {
-            haveToComputing = false;
-            RobotTimer = 0;
-            iaProcessing = true;
-            fillPushs(); //Debug.Log("pushs");
-            //RobotPion = 44444;
-            RobotComputing(); //Debug.Log("<pushs robot computing ok! ");
-            //listOthers(); Fonction à supprimer??
+            
+
+            if (CountLeftDL == 0 && CountLeft != -50 & CountLeft != 0 && !RobotStop)
+            {
+                if (RobotChoosen) { RobotTimer = 0; RobotDoing(); }
+                if (haveToComputing && Indexcam > 2 && !iaProcessing && Jts == "Computer" && !RobotChoosen && CountLeft != -9 && CountLeft != 0 && Indexcam != 1 && CountLeft!=-50)
+                {
+                    RobotTimer3++;
+                    haveToComputing = false;
+                    RobotTimer = 0;
+                    iaProcessing = true;
+                    fillPushs(); //Debug.Log("pushs");
+                                 //RobotPion = 44444;
+                    RobotComputing(); //Debug.Log("<pushs robot computing ok! ");
+                                      //listOthers(); Fonction à supprimer??
+
+
+                }
+                if (Jts == "Computer") { monToggle.isOn = true; RobotTimer++; if (RobotTimer >= 50) { haveToComputing = true; } }
+            }
 
         }
+        else
+        {
+            RobotTimer3++;
+            if (RobotTimer3 > 3) { RobotTimer3 = 0; }
+        }
+        
+        
+ 
         if (WinerId == 0 )
         {
             int winCount = 0;
@@ -1552,6 +1600,7 @@ listePushUpsPtrig.Add(new PushUpData(robot.p, robot.y, robot.x));
            
             if (WinerId != 0)
             {
+                setyutsavetxt();
                 for (int i = 1; i <= 4; i++)
                 {
                     SaveTurns[1, i] = 1;
@@ -1714,6 +1763,7 @@ listePushUpsPtrig.Add(new PushUpData(robot.p, robot.y, robot.x));
        
         // Mettez à jour le texte du TextMesh avec le nom du joueur  
         WinTxt.text = libNameText + WinerId.ToString();
+        setyutsavetxt();
     }
     bool YutVide()
     {
@@ -1733,6 +1783,7 @@ listePushUpsPtrig.Add(new PushUpData(robot.p, robot.y, robot.x));
             }
         }
         if (add-1 != 0) { result = true; }
+        
         // Utilisez la méthode All pour vérifier si toutes les valeurs sont fausses et vides ( texte == null || !texte.enabled) &&
         return result;
     }
@@ -1741,14 +1792,14 @@ listePushUpsPtrig.Add(new PushUpData(robot.p, robot.y, robot.x));
         CountLeftDL = inval;
         //Debug.LogError("conversion du texte en int.");
         
-       // add--;
+       addl--;
         //GetComponentInChildren<TextMeshProUGUI>().text = "";
         yutlist = YutVide();
     }
     
     public void SaveCountLeft(int inval)
     {
-        //add++;
+        addl++;
         for (int i = 0; i < textesBouton.Length; i++)
         {
             // Vérifiez si la position actuelle est nulle ou satisfait une certaine condition
@@ -1757,7 +1808,7 @@ listePushUpsPtrig.Add(new PushUpData(robot.p, robot.y, robot.x));
                 // Placez la valeur dans la première position disponible
                 // (vous pouvez également avoir une logique spécifique ici pour déterminer si la position est "disponible")
                 textesBouton[i].text = inval.ToString();
-
+                inttextesBouton[i] = inval;
                 // Sortez de la boucle après avoir sauvegardé la valeur
                 return;
             }

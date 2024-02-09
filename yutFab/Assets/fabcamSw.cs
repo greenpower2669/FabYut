@@ -196,6 +196,15 @@ objects = new Transform[] { Object1, Object2, Object3, Object4 };
     }
     void myUpdate()
     {
+        if (globalsScript.MinScreenSend)
+        {
+
+            if (CountLeft == 0)
+            {
+                fastResetObjects();
+            }
+            globalsScript.MinScreenSend = false;
+        }
         //GameObject objetAChercher = GameObject.FindWithTag("Globals");
         //Globals globalsScript = objetAChercher.GetComponent<Globals>();
         zoomFab = slider.value;
@@ -357,21 +366,23 @@ objects = new Transform[] { Object1, Object2, Object3, Object4 };
 
         if (Intermediaire==1 && minus){ Intermediaire = -1; }
         CountLeft=Intermediaire;
-        if (globalsScript.Jts != "Computer" && globalsScript.Saved)
+        if ( globalsScript.Saved) //globalsScript.Jts != "Computer" &&
         {
+            globalsScript.RobotStop = true;
             globalsScript.Saved = false;
             globalsScript.CountLeftDL = 50;
 
         }
         if ( (Intermediaire == 5 || Intermediaire == 4))
         {
+            globalsScript.RobotStop = true;
             //YutVide() quand l'utiliser?
-            if (globalsScript.Jts != "Computer") { 
-                globalsScript.CountLeftDL = 60; globalsScript.Fived = true; globalsScript.Saved = true;
+            // if (globalsScript.Jts != "Computer") { 
+            globalsScript.CountLeftDL = 60; globalsScript.Fived = true; globalsScript.Saved = true;
 
 
-                    } else { globalsScript.Fived = true;
-            }
+             //       } else { globalsScript.Fived = true;
+           // }
           
 
 
@@ -382,10 +393,10 @@ objects = new Transform[] { Object1, Object2, Object3, Object4 };
     }
     void switchPlayers()
     {
-
+        globalsScript.RobotStop = false;
         //GameObject objetAChercher = GameObject.FindWithTag("Globals");
         //Globals globalsScript = objetAChercher.GetComponent<Globals>();
-       
+
         if (globalsScript.Fived) { globalsScript.Fived = false; } else {
             globalsScript.switchNames = true;
             if (Player == 1) { Player = 2;  globalsScript.Jid = 2; } else { Player = 1; globalsScript.Jid = 1; }
@@ -581,11 +592,13 @@ objects = new Transform[] { Object1, Object2, Object3, Object4 };
 
     public void fastResetObjects()
     {
-      
 
-      
-       
-            for (int ii = 0; ii < objects.Length; ii++)
+        switchPlayers();
+        switshPlayerCam();
+        SwitchCamera();
+
+
+        for (int ii = 0; ii < objects.Length; ii++)
             {
             // Modifiez la position en hauteur pour chaque objet
             int iii = ii + 2;
@@ -606,13 +619,12 @@ objects = new Transform[] { Object1, Object2, Object3, Object4 };
         ChangeRandomAngleZ(Object3);
         ChangeRandomAngleZ(Object4);
         Lunched();
-        switchPlayers();
-        switshPlayerCam();
-        SwitchCamera();
+      
         AfficherBtlancer(false);
         //GameObject objetAChercher = GameObject.FindWithTag("Globals");
         //Globals globalsScript = objetAChercher.GetComponent<Globals>();
         globalsScript.lancer_a_Afficher = true;
+        
     }
     // Méthode pour modifier l'angle Z aléatoirement
     private void ChangeRandomAngleZ(Transform myTransform)
