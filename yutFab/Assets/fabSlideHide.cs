@@ -7,9 +7,13 @@ public class SlideHide : MonoBehaviour
     public TextMeshProUGUI texteBouton;
     public ScrollRect scrollRect;
     public Scrollbar verticalScrollbar;
+    GameObject objetAChercher;
+    Globals globalsScript;
 
     void Start()
     {
+        objetAChercher = GameObject.FindWithTag("Globals");
+        globalsScript = objetAChercher.GetComponent<Globals>();
         if (texteBouton == null || verticalScrollbar == null)
         {
             Debug.LogError("Assurez-vous d'assigner le TextMeshProUGUI et le ScrollRect dans l'éditeur Unity.");
@@ -39,7 +43,7 @@ public class SlideHide : MonoBehaviour
         
        
         // Vérifiez si le texte du bouton est vide ou null
-        if (string.IsNullOrEmpty(texteBouton.text))
+        if ( !globalsScript.YutSaveOver)
         {
             // Si le texte est vide, masquez le bouton
             ForceScrollRectToZero();

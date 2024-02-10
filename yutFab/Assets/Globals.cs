@@ -161,6 +161,7 @@ public class Globals : MonoBehaviour
     public int[] computingPointsList = new int[40];
     public int[] inttextesBouton = new int[40];
     public bool MinScreenSend = false;
+    public bool YutSaveOver = false;
 
 
     // Start is called before the first frame update
@@ -1490,9 +1491,10 @@ listePushUpsPtrig.Add(new PushUpData(robot.p, robot.y, robot.x));
     }
     void myUpdate5()
     {
-       
-   
-    
+
+        YutSaveO();
+
+
         sliderValueLvl = LVLIA.value;
         iaLvl[1] = 1+Mathf.RoundToInt(sliderValueLvl*9);
         sliderValueagr = AGRSTRAT.value;
@@ -1825,6 +1827,25 @@ listePushUpsPtrig.Add(new PushUpData(robot.p, robot.y, robot.x));
             textesBouton[i].text = "";
             
         }
+    }
+    void YutSaveO()
+    {
+        int ADDY = 0;
+        for (int i = 3; i < textesBouton.Length; i++)
+        {
+
+            if (textesBouton[i].text != "")
+            {
+                ADDY++;
+            }
+
+        }
+        if (ADDY > 0)
+        {
+            YutSaveOver=true;
+        }
+        else { YutSaveOver = false; }
+
     }
     //computingPoints = 100; computingPointslist, le but est de tester les combi avec plus de potentialité pour le computer afin qu'il choisisse la bonne combinéson, la plus forte en premier
 }

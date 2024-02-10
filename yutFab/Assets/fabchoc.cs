@@ -141,7 +141,8 @@ public class fabchoc : MonoBehaviour
         {
             
                 globalsScript.haveToComputing = true;
-            
+            globalsScript.yutlistRobot = false;
+
 
             //si le trig est possible alors tester ce qui doit se passer à selon certains cas
             if ( 
