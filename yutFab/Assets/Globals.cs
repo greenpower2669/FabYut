@@ -1586,10 +1586,10 @@ listePushUpsPtrig.Add(new PushUpData(robot.p, robot.y, robot.x));
         }
         turnL();
     }
-    // Update is called once per 100ms
+    // Update is called once per 2500ms
     void myWin()
     {
-        if (Jts == "Computer" && CountLeft == 0) {autoLC[Jid] = true; }
+        //if (Jts == "Computer" && CountLeft == 0) {autoLC[Jid] = true; }
         if ((Indexcam == 3 || Indexcam == 4) )
         {
             // test the winer just on bord view and if the countleft difined >-2 && <6 or saved -50 or 0 but not autolunch

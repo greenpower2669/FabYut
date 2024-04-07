@@ -28,6 +28,7 @@ public class fabcamSw : MonoBehaviour
     private Camera currentCamera;
     private Vector3[] initialPositions; // Tableau pour stocker les positions de départ
     public float desiredHeight=8;
+    private int PchangeTimer =0;
     private bool lunched = false;
     private bool processingfalldown=false;
     private bool processingfalldown0 = false;
@@ -204,6 +205,10 @@ objects = new Transform[] { Object1, Object2, Object3, Object4 };
     }
     void myUpdate()
     {
+        //timers
+        if (PchangeTimer != 0) { PchangeTimer += 1;
+            if (PchangeTimer > 15) { PchangeTimer = 0; }
+        }
         OnBoutonClicYutVerif();
         CountLeft0 = CountLeft;
         if (globalsScript.MinScreenSend)
@@ -255,14 +260,21 @@ objects = new Transform[] { Object1, Object2, Object3, Object4 };
             {
                 if (!globalsScript.yutlist )
                 {
-                    if (CountLeft != CountLeft0 && CountLeft==0) { switchPlayers(); }
-                    //  if (globalsScript.Jts == "Computer" && CountLeft==0 ) { globalsScript.autoLC[Player] = true; } test raté, remis dans le code global car la tempo était la solution
+                    if (CountLeft != CountLeft0 && CountLeft==0) {
+                        PchangeTimer = 1;
+                        switchPlayers();
+                     //    if (globalsScript.Jts == "Computer" && CountLeft==0 ) { globalsScript.autoLC[Player] = true; }// test raté, remis dans le code global car la tempo était la solution
+                    }
+                    else {
+                        
+                        if (PchangeTimer==0 && globalsScript.Jts == "Computer" && CountLeft == 0) { globalsScript.autoLC[Player] = true; }
+                    }
                     globalsScript.lancer_a_Afficher = false;
                     if (globalsScript.autoLC[Player]) { fastResetObjects(); }
                     else
                     {
-                      
-                       
+                       // if (globalsScript.Jts == "Computer" && CountLeft == 0) { globalsScript.autoLC[Player] = true; }
+
                         AfficherBtlancer(true);
                     }
                 }
