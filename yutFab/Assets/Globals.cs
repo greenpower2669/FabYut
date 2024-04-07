@@ -82,6 +82,8 @@ public class Globals : MonoBehaviour
     public int[] Turnleft = { 4, 4 };
     public int[] Turnwin = { 4, 4 };
     public bool autoL = false;
+    public bool[] autoLC= { false, false,false };
+    public bool stopSave = false;
     public Toggle monToggle;
     public Toggle MoveY;
     public Toggle isClavierscreen;
@@ -162,6 +164,7 @@ public class Globals : MonoBehaviour
     public int[] inttextesBouton = new int[40];
     public bool MinScreenSend = false;
     public bool YutSaveOver = false;
+    private AudioSource audioSource;
 
 
     // Start is called before the first frame update
@@ -218,6 +221,7 @@ public class Globals : MonoBehaviour
     }
     void Start()
     {
+
         setyutsavetxt();
         startTime = Time.time;
         setPlateau();
@@ -229,9 +233,11 @@ public class Globals : MonoBehaviour
         }
         IsIA.onValueChanged.AddListener(delegate { IsiaChg(); });
         IsIA1.onValueChanged.AddListener(delegate { Isia1Chg(); });
-        monToggle.onValueChanged.AddListener(delegate { tog(); });
+        //monToggle.onValueChanged.AddListener(delegate { tog(); });
         InvokeRepeating("myUpdate", 0f, 0.1f);
         InvokeRepeating("myUpdate5", 0f, 0.5f);
+        InvokeRepeating("myWin", 0f, 2.5f);
+        
     }
     // Fonction générique pour ajouter un push up à la liste
     void AjouterPushUp(List<PushUpData> liste, int x, int y, int joueur)
@@ -241,7 +247,8 @@ public class Globals : MonoBehaviour
     }
     public void tog()
     {
-        autoL = monToggle.isOn;
+        autoLC[Jid] = !autoLC[Jid];
+        //autoL = monToggle.isOn;
     }
     public void togKB(int entry)
     {
@@ -1491,7 +1498,7 @@ listePushUpsPtrig.Add(new PushUpData(robot.p, robot.y, robot.x));
     }
     void myUpdate5()
     {
-
+        monToggle.isOn = autoLC[Jid];
         YutSaveO();
 
 
@@ -1548,7 +1555,11 @@ listePushUpsPtrig.Add(new PushUpData(robot.p, robot.y, robot.x));
 
 
                 }
-                if (Jts == "Computer") { monToggle.isOn = true; RobotTimer++; if (RobotTimer >= 50) { haveToComputing = true; } }
+                // code déporté dans camSw car comme ça l'humain pourra choisir le mode de lancé : " monToggle.isOn = true;" plante car le switch player se fait trop tard, modifier le processus en attendant je place une variable humanChoice bool dans un tableau lié au player 1 ou 2
+                if (Jts == "Computer") {
+                    
+                    RobotTimer++;
+                if (RobotTimer >= 50) { haveToComputing = true; } }
             }
 
         }
@@ -1559,68 +1570,8 @@ listePushUpsPtrig.Add(new PushUpData(robot.p, robot.y, robot.x));
         }
         
         
- 
-        if (WinerId == 0 )
-        {
-            int winCount = 0;
-           if (Indexcam > 2)
-            {
-
-                for (int i = 1; i <= 4; i++)
-                {
-
-                    if (SaveTurns[1, i] != 0)
-                    {
-                        winCount += SaveTurns[1, i];
-
-
-                    }
-
-
-                }
-                turnsJ1 = winCount;
-                if (winCount == 0) { WinerId = 1; }
-                winCount = 0;
-
-                for (int i = 1; i <= 4; i++)
-                {
-
-                    if (SaveTurns[2, i] != 0)
-                    {
-                        winCount += SaveTurns[2, i];
-
-
-                    }
-
-                }
-                //foreach (var pushUpData in listePushUpsP) { Debug.Log($"x: {pushUpData.x}, y: {pushUpData.y}, p: {pushUpData.p}");            }
-
-                turnsJ2 = winCount;
-                if (winCount == 0) { WinerId = 2; }
-            }
-            
-           
-            if (WinerId != 0)
-            {
-                setyutsavetxt();
-                for (int i = 1; i <= 4; i++)
-                {
-                    SaveTurns[1, i] = 1;
-                    SaveTurns[2, i] = 1;
-
-                }    
-            }
-
-        }
-        else
-        {
-            if (!uiState3)
-            {
-                win();
-                uiStateIII();
-            }
-          
-        }
+      
+        
         MY =MoveY.isOn;
         Participants();
        
@@ -1636,7 +1587,76 @@ listePushUpsPtrig.Add(new PushUpData(robot.p, robot.y, robot.x));
         turnL();
     }
     // Update is called once per 100ms
-    
+    void myWin()
+    {
+        if (Jts == "Computer" && CountLeft == 0) {autoLC[Jid] = true; }
+        if ((Indexcam == 3 || Indexcam == 4) )
+        {
+            // test the winer just on bord view and if the countleft difined >-2 && <6 or saved -50 or 0 but not autolunch
+            if (WinerId == 0)
+            {
+                int winCount = 0;
+                if (Indexcam > 2)
+                {
+
+                    for (int i = 1; i <= 4; i++)
+                    {
+
+                        if (SaveTurns[1, i] != 0)
+                        {
+                            winCount += SaveTurns[1, i];
+
+
+                        }
+
+
+                    }
+                    turnsJ1 = winCount;
+                    if (winCount == 0) { WinerId = 1; }
+                    winCount = 0;
+
+                    for (int i = 1; i <= 4; i++)
+                    {
+
+                        if (SaveTurns[2, i] != 0)
+                        {
+                            winCount += SaveTurns[2, i];
+
+
+                        }
+
+                    }
+                    //foreach (var pushUpData in listePushUpsP) { Debug.Log($"x: {pushUpData.x}, y: {pushUpData.y}, p: {pushUpData.p}");            }
+
+                    turnsJ2 = winCount;
+                    if (winCount == 0) { WinerId = 2; }
+                }
+
+
+                if (WinerId != 0)
+                {
+                    setyutsavetxt();
+                    for (int i = 1; i <= 4; i++)
+                    {
+                        SaveTurns[1, i] = 1;
+                        SaveTurns[2, i] = 1;
+
+                    }
+                }
+
+            }
+            else
+            {
+                if (!uiState3)
+                {
+                    win();
+                    uiStateIII();
+                }
+
+            }
+
+        }
+    }
     void myUpdate()
     {
         //public Toggle isClavierscreen;
@@ -1802,6 +1822,11 @@ listePushUpsPtrig.Add(new PushUpData(robot.p, robot.y, robot.x));
     public void SaveCountLeft(int inval)
     {
         addl++;
+        if (inval < 4)
+        {
+            stopSave = true;
+        }
+      
         for (int i = 0; i < textesBouton.Length; i++)
         {
             // Vérifiez si la position actuelle est nulle ou satisfait une certaine condition
@@ -1819,8 +1844,11 @@ listePushUpsPtrig.Add(new PushUpData(robot.p, robot.y, robot.x));
         // Si toutes les positions sont occupées, vous pouvez gérer cela d'une manière appropriée.
         Debug.LogWarning("Aucune place disponible dans le tableau pour sauvegarder la valeur.");
     }
-    void setyutsavetxt()
-    {
+    public void setyutsavetxt()
+    {  
+        addl = 0;
+        RobotStop = false;
+        if (CountLeft == -50) { CountLeftDL = -9; }
         for (int i = 0; i < textesBouton.Length; i++)
         {
             
@@ -1830,7 +1858,8 @@ listePushUpsPtrig.Add(new PushUpData(robot.p, robot.y, robot.x));
     }
     void YutSaveO()
     {
-        int ADDY = 0;
+     int ADDY = 0;
+       
         for (int i = 3; i < textesBouton.Length; i++)
         {
 

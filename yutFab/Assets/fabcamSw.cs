@@ -33,7 +33,7 @@ public class fabcamSw : MonoBehaviour
     private bool processingfalldown0 = false;
     private Vector3[] previousPositions;
     public float movementThreshold = 0.01f; // Changer ceci selon votre tolérance de mouvement.
-
+    private bool islunched = false;
     // Ajoutez ces variables pour la modification aléatoire de l'angle Z
     public float minVariation = -10.0f;
     public float maxVariation = 10.0f;
@@ -48,7 +48,7 @@ public class fabcamSw : MonoBehaviour
     private GameObject[] allObjects;
     private GameObject[] allObjectsL;
     private GameObject[] allObjectsJ;
-    private int Player=2;
+    private int Player=1;
     private bool Rejouer04=false;
     private Transform[] objects;
     private TouchScreenKeyboard clavier;
@@ -77,7 +77,7 @@ public class fabcamSw : MonoBehaviour
         //GameObject objetAChercher = GameObject.FindWithTag("Globals");
         //Globals globalsScript = objetAChercher.GetComponent<Globals>();
         globalsScript.WinerId = 0;
-        Player = 2;
+        Player = 1;
         for (int i = 1; i <= 4; i++)
         {
             //globalsScript.SaveTurns[1, i] = 1;
@@ -162,40 +162,50 @@ objects = new Transform[] { Object1, Object2, Object3, Object4 };
     public void Lunched()
     {
         lunched = true;
+        islunched = true;
     }
     
     void GameChecking()
     {
+        // ici le game cheking lourd en temps de procésseur
         Aplat();
         JtoS(Player);
         processingfalldown0 = processingfalldown;
         processingfalldown = false;
-
-        for (int i = 0; i < objects.Length; i++)
+        if (islunched)
         {
-            if (HasObjectMoved(objects[i], i))
+            
+
+            for (int i = 0; i < objects.Length; i++)
             {
-                processingfalldown = true;//Debug.Log("Object " + i + " a bougé.");
+                if (HasObjectMoved(objects[i], i))
+                {
+                    processingfalldown = true;//Debug.Log("Object " + i + " a bougé.");
+                }
+            }
+
+            for (int i = 0; i < objects.Length; i++)
+            {
+                previousPositions[i] = objects[i].position;
+            }
+            if (processingfalldown0 && lunched)
+            {
+                if (processingfalldown != processingfalldown0 && (CountLeft == 0 || CountLeft == -9))
+                {
+                    TestCountLeft();
+                    islunched = false;
+
+                }
             }
         }
 
-        for (int i = 0; i < objects.Length; i++)
-        {
-            previousPositions[i] = objects[i].position;
-        }
-        if (processingfalldown0 && lunched)
-        {
-            if (processingfalldown != processingfalldown0 && (CountLeft==0 || CountLeft==-9))
-            {
-                TestCountLeft();
 
-            }
-        }
-        OnBoutonClicYutVerif();
-        // ici le game cheking lourd en temps de procésseur
+       
     }
     void myUpdate()
     {
+        OnBoutonClicYutVerif();
+        CountLeft0 = CountLeft;
         if (globalsScript.MinScreenSend)
         {
 
@@ -209,7 +219,7 @@ objects = new Transform[] { Object1, Object2, Object3, Object4 };
         //Globals globalsScript = objetAChercher.GetComponent<Globals>();
         zoomFab = slider.value;
         globalsScript.Indexcam = indexcam;
-        if (indexcam == 1) { globalsScript.Fived = false; CountLeft = -9; }
+        if (indexcam == 1) { CountLeft = -9; }//globalsScript.Fived = false;  //alerte code innutile vérifier le processus car sur un jeté manuel ça risque de planter le fived
         float nouveauFOV = Mathf.Lerp(minZoom,maxZoom, slider.value); // Ajustez les valeurs minimales et maximales du FOV selon vos besoins
         Cameraj1.fieldOfView = nouveauFOV;
         Cameraj2.fieldOfView = nouveauFOV;
@@ -231,19 +241,28 @@ objects = new Transform[] { Object1, Object2, Object3, Object4 };
             globalsScript.choosen = false;
             //CountLefted = false;
 
-}
+        }
+        if (globalsScript.stopSave) { 
+            globalsScript.stopSave = false;
+            globalsScript.Fived = false;
+            CountLeft = -50;
+        }
         globalsScript.CountLeft = CountLeft;
-        if ((indexcam == 4 || indexcam == 3) && !processingfalldown0 && lunched)
+        if ((indexcam == 4 || indexcam == 3) && !processingfalldown0 && lunched && globalsScript.CountLeftDL != 50)
         {
             if (CountLeft == 0 || (globalsScript.Fived && CountLeft==-50)) { globalsScript.afficher_lancer = true; globalsScript.lancer_a_Afficher = true; } else { globalsScript.afficher_lancer = false; globalsScript.lancer_a_Afficher = false; }
             if (globalsScript.afficher_lancer && globalsScript.lancer_a_Afficher)
             {
-                if (!globalsScript.yutlist)
+                if (!globalsScript.yutlist )
                 {
+                    if (CountLeft != CountLeft0 && CountLeft==0) { switchPlayers(); }
+                    //  if (globalsScript.Jts == "Computer" && CountLeft==0 ) { globalsScript.autoLC[Player] = true; } test raté, remis dans le code global car la tempo était la solution
                     globalsScript.lancer_a_Afficher = false;
-                    if (globalsScript.autoL) { fastResetObjects(); }
+                    if (globalsScript.autoLC[Player]) { fastResetObjects(); }
                     else
                     {
+                      
+                       
                         AfficherBtlancer(true);
                     }
                 }
@@ -366,11 +385,13 @@ objects = new Transform[] { Object1, Object2, Object3, Object4 };
 
         if (Intermediaire==1 && minus){ Intermediaire = -1; }
         CountLeft=Intermediaire;
-        if ( globalsScript.Saved) //globalsScript.Jts != "Computer" &&
+        if ( globalsScript.Saved && Intermediaire<4) //globalsScript.Jts != "Computer" &&
         {
             globalsScript.RobotStop = true;
             globalsScript.Saved = false;
-            globalsScript.CountLeftDL = 50;
+            globalsScript.SaveCountLeft(CountLeft);
+          
+            
 
         }
         if ( (Intermediaire == 5 || Intermediaire == 4))
@@ -458,7 +479,7 @@ objects = new Transform[] { Object1, Object2, Object3, Object4 };
         switch (indexcam)
         { 
             case 1:
-                switchPlayers();
+               
                 Camera1.enabled = true;
                 foreach (GameObject obj in allObjects)
                 {
@@ -593,7 +614,7 @@ objects = new Transform[] { Object1, Object2, Object3, Object4 };
     public void fastResetObjects()
     {
 
-        switchPlayers();
+        islunched = true;
         switshPlayerCam();
         SwitchCamera();
 
